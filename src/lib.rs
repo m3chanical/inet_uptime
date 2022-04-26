@@ -11,10 +11,9 @@ pub async fn connect(addrs: Vec<&str>) -> ()
 {
     for address in addrs
     {
-        println!("Pinging {:#?}...", address);
         let socket_address: SocketAddr = address
             .parse()
-            .expect("Unable to parse socket address");
+            .expect("Unable to parse socket address"); // TODO Handle Error in main
         ping_port(socket_address.ip(), socket_address.port(), 5).await;
     }
 }
@@ -25,9 +24,10 @@ async fn ping_port(target: IpAddr, port: u16, timeout: u64) {
     println!("{} {}", target, port);
     match tokio::time::timeout(timeout, TcpStream::connect(&socket_address)).await 
     {
-        Ok(Ok(_)) => 
+        Ok(Ok(stm)) => 
         {
             println!("Got response on: {}", port);
+            _ = stm.try_write(b"test\n"); // return tuple with stuff
         },
         _ => {}
     }
