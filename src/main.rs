@@ -1,12 +1,8 @@
 use clap::{Arg, Command};
 use inet_uptime;
-use std::any::type_name;
 
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
-}
-
-fn main() {
+#[tokio::main]
+async fn main() {
 
     let matches = clap::Command::new("Internet Uptime")
     .version("0.0.1")
@@ -44,12 +40,12 @@ fn main() {
             if let Some(address) = ping_matches.values_of("address") {
                 let values = address.collect::<Vec<_>>();
                 // check if port is used
-                inet_uptime::ping(values);
+                inet_uptime::connect(values).await;
             } else {
                 let mut values: Vec<&str> = Vec::new(); 
                 // if no address, but port is used, append port to default address
                 values.push("8.8.8.8:53");
-                inet_uptime::ping(values);
+                inet_uptime::connect(values).await;
             }
         }
         _ => unreachable!(),
