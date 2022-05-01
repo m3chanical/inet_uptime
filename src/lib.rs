@@ -21,7 +21,7 @@ pub async fn connect(addrs: Vec<&str>) -> ()
 async fn ping_port(target: IpAddr, port: u16, timeout: u64) {
     let timeout = Duration::from_secs(timeout);
     let socket_address = SocketAddr::new(target.clone(), port);
-    println!("{} {}", target, port);
+    //println!("{} {}", target, port);
     match tokio::time::timeout(timeout, TcpStream::connect(&socket_address)).await 
     {
         Ok(Ok(stm)) => 
@@ -29,6 +29,8 @@ async fn ping_port(target: IpAddr, port: u16, timeout: u64) {
             println!("Got response on: {}", port);
             _ = stm.try_write(b"test\n"); // return tuple with stuff
         },
-        _ => {}
+        _ => {
+            println!("Connection fail.");
+        }
     }
 }

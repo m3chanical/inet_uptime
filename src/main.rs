@@ -29,25 +29,44 @@ async fn main() {
                     .help("Port on the server to ping")
                     .takes_value(true)
                     .multiple_values(true)                
+            )
+            .arg(
+                Arg::new("loop")
+                    .short('l')
+                    .long("loop")
+                    .help("Continuously Ping servers")
+                    .takes_value(false)
+                    .multiple_values(false)
+            )
+            .arg(
+                Arg::new("save")
+                    .short('s')
+                    .long("save")
+                    .help("Write results to sqlite db")
+                    .takes_value(false)
+                    .multiple_occurrences(false)
             ),
     )
     .get_matches();
-    // jump into lib.rs and do stuff. 
-    // open up internet connection
 
     match matches.subcommand() {
         Some(("ping", ping_matches)) => {
-            if let Some(address) = ping_matches.values_of("address") {
-                let values = address.collect::<Vec<_>>();
-                // check if port is used
-                inet_uptime::connect(values).await;
-            } else {
-                let mut values: Vec<&str> = Vec::new(); 
-                // if no address, but port is used, append port to default address
-                values.push("8.8.8.8:53");
-                inet_uptime::connect(values).await;
-            }
+            ping_command(&ping_matches).await;
         }
         _ => unreachable!(),
+    }
+}
+
+async fn ping_command(ping_matches: &clap::ArgMatches) 
+{
+    if let Some(address) = ping_matches.values_of("address") {
+        let values = address.collect::<Vec<_>>();
+        // check if port is used
+        inet_uptime::connect(values).await;
+    } else {
+        let mut values: Vec<&str> = Vec::new(); 
+        // if no address, but port is used, append port to default address
+        values.push("8.8.8.8:53");
+        inet_uptime::connect(values).await;
     }
 }
